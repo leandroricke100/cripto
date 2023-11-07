@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import styles from "./home.module.css";
 import { BiSearch } from "react-icons/bi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 //https://coinlib.io/api/v1/coinlist?key=67f9141787211428
 
@@ -14,6 +14,7 @@ interface CoinProps {
   market_cap: string;
   formatedPrice: string;
   formatedMarket: string;
+  numberDelta: number;
 }
 
 interface DataProps {
@@ -22,11 +23,13 @@ interface DataProps {
 
 export function Home() {
   const [coins, setCoins] = useState<CoinProps[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     function getData() {
       fetch(
-        "https://sujeitoprogramador.com/api-cripto/?key=b4cd8f8fb3de94c6&pref=BRL"
+        "https://sujeitoprogramador.com/api-cripto/?key=2784a65080a70d93&pref=BRL"
       )
         .then((response) => response.json())
         .then((data: DataProps) => {
@@ -42,6 +45,7 @@ export function Home() {
               ...item,
               formatedPrice: price.format(Number(item.price)),
               formatedMarket: price.format(Number(item.market_cap)),
+              numberDelta: parseFloat(item.delta_24h.replace(",", ".")),
             };
 
             return formated;
@@ -54,10 +58,22 @@ export function Home() {
     getData();
   }, []);
 
+  function handleSearch(e: FormEvent) {
+    e.preventDefault();
+
+    if (inputValue === "") return;
+
+    navigate(`/detail/${inputValue}`);
+  }
+
   return (
     <main className={styles.container}>
-      <form className={styles.form}>
-        <input placeholder="Digite o simbolo da moeda: BTC..." />
+      <form className={styles.form} onSubmit={handleSearch}>
+        <input
+          placeholder="Digite o simbolo da moeda: BTC..."
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+        />
         <button type="submit">
           <BiSearch size={30} color="#FFF" />
         </button>
@@ -75,13 +91,10 @@ export function Home() {
 
         <tbody id="tbody">
           {coins.map((coin) => {
-            const delta_24h = parseFloat(coin.delta_24h.replace(",", ".")); // Converter a vírgula para ponto e analisar como um número
-            const isProfit = delta_24h >= 0;
-
             return (
               <tr key={coin.name} className={styles.tr}>
                 <td className={styles.tdLabel} data-label="Moeda">
-                  <Link className={styles.Link} to="/detail/btc">
+                  <Link className={styles.link} to={`/detail/${coin.symbol}`}>
                     <span>{coin.name}</span> | {coin.symbol}
                   </Link>
                 </td>
@@ -92,7 +105,9 @@ export function Home() {
                   {coin.formatedPrice}
                 </td>
                 <td
-                  className={isProfit ? styles.tdProfit : styles.tdLoss}
+                  className={
+                    coin.numberDelta >= 0 ? styles.tdProfit : styles.tdLoss
+                  }
                   data-label="Volume"
                 >
                   <span>{coin.delta_24h}</span>
