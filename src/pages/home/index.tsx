@@ -28,13 +28,11 @@ export function Home() {
 
   useEffect(() => {
     function getData() {
-      fetch(
-        "https://sujeitoprogramador.com/api-cripto/?key=2784a65080a70d93&pref=BRL"
-      )
+      fetch("https://sujeitoprogramador.com/api-cripto/?key=b4cd8f8fb3de94c6")
         .then((response) => response.json())
         .then((data: DataProps) => {
           const coinsData = data.coins.slice(0, 15);
-
+          console.log(coinsData);
           const price = Intl.NumberFormat("pt-BR", {
             style: "currency",
             currency: "BRL",
@@ -60,7 +58,6 @@ export function Home() {
 
   function handleSearch(e: FormEvent) {
     e.preventDefault();
-
     if (inputValue === "") return;
 
     navigate(`/detail/${inputValue}`);
@@ -90,31 +87,29 @@ export function Home() {
         </thead>
 
         <tbody id="tbody">
-          {coins.map((coin) => {
-            return (
-              <tr key={coin.name} className={styles.tr}>
-                <td className={styles.tdLabel} data-label="Moeda">
-                  <Link className={styles.link} to={`/detail/${coin.symbol}`}>
-                    <span>{coin.name}</span> | {coin.symbol}
-                  </Link>
-                </td>
-                <td className={styles.tdLabel} data-label="Mercado">
-                  {coin.formatedMarket}
-                </td>
-                <td className={styles.tdLabel} data-label="Preço">
-                  {coin.formatedPrice}
-                </td>
-                <td
-                  className={
-                    coin.numberDelta >= 0 ? styles.tdProfit : styles.tdLoss
-                  }
-                  data-label="Volume"
-                >
-                  <span>{coin.delta_24h}</span>
-                </td>
-              </tr>
-            );
-          })}
+          {coins.map((coin) => (
+            <tr key={coin.name} className={styles.tr}>
+              <td className={styles.tdLabel} data-label="Moeda">
+                <Link className={styles.link} to={`/detail/${coin.symbol}`}>
+                  <span>{coin.name}</span> | {coin.symbol}
+                </Link>
+              </td>
+              <td className={styles.tdLabel} data-label="Mercado">
+                {coin.formatedMarket}
+              </td>
+              <td className={styles.tdLabel} data-label="Preço">
+                {coin.formatedPrice}
+              </td>
+              <td
+                className={
+                  coin.numberDelta >= 0 ? styles.tdProfit : styles.tdLoss
+                }
+                data-label="Volume"
+              >
+                <span>{coin.delta_24h}</span>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </main>
